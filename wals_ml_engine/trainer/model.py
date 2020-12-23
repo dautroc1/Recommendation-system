@@ -103,7 +103,7 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
     sparse coo_matrix for training
     sparse coo_matrix for test
   """
-  headers = ['user_id', 'item_id', 'rating', 'timestamp']
+  headers = ['user_id', 'item_id', 'rating']
   header_row = 0 if use_headers else None
   ratings_df = pd.read_csv(input_file,
                            sep=delimiter,
@@ -113,7 +113,7 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
                                'user_id': np.int32,
                                'item_id': np.int32,
                                'rating': np.float32,
-                               'timestamp': np.int32,
+                               
                            })
 
   np_users = ratings_df.user_id.as_matrix()
