@@ -174,12 +174,12 @@ def _page_views_train_and_test(input_file):
   """
   views_df = pd.read_csv(input_file, sep=',', header=0)
 
-  df_items = pd.DataFrame({'contentId': views_df.contentId.unique()})
+  df_items = pd.DataFrame({'contentId': views_df.anime_id.unique()})
   df_sorted_items = df_items.sort_values('contentId').reset_index()
   pds_items = df_sorted_items.contentId
 
   # preprocess data. df.groupby.agg sorts clientId and contentId
-  df_user_items = views_df.groupby(['clientId', 'contentId']
+  df_user_items = views_df.groupby(['user_id', 'anime_id']
                                   ).agg({'timeOnPage': 'sum'})
 
   # create a list of (userId, itemId, timeOnPage) ratings, where userId and
