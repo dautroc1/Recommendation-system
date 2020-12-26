@@ -66,7 +66,7 @@ default_args = {
 
 # Default schedule interval using cronjob syntax - can be customized here
 # or in the Airflow console.
-schedule_interval = '00 21 * * *'
+schedule_interval = '*/10 * * * *'
 
 dag = DAG('recommendations_training_v1', default_args=default_args,
           schedule_interval=schedule_interval)
