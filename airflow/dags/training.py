@@ -66,7 +66,7 @@ default_args = {
 
 # Default schedule interval using cronjob syntax - can be customized here
 # or in the Airflow console.
-schedule_interval = '*/10 * * * *'
+schedule_interval = '00 21 * * *'
 
 dag = DAG('recommendations_training_v1', default_args=default_args,
           schedule_interval=schedule_interval)
@@ -116,7 +116,7 @@ output_dir = BUCKET
 training_args = ['--job-dir', job_dir,
                  '--train-file', training_file,
                  '--output-dir', output_dir,
-                 '--data-type', 'rating',
+                 '--delimiter',
                  '--use-optimized']
 
 t3 = MLEngineTrainingOperator(

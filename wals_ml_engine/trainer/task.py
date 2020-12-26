@@ -133,7 +133,7 @@ def parse_arguments():
   parser.add_argument(
       '--delimiter',
       type=str,
-      default='\t',
+      default=',',
       help='Delimiter for csv data files'
   )
   parser.add_argument(
