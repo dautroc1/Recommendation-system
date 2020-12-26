@@ -103,7 +103,7 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
     sparse coo_matrix for training
     sparse coo_matrix for test
   """
-  headers = ['user_id', 'item_id', 'rating']
+  headers = ['user_id', 'anime_id', 'rating']
   header_row = 0 if use_headers else None
   ratings_df = pd.read_csv(input_file,
                            sep=delimiter,
@@ -111,13 +111,13 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
                            header=header_row,
                            dtype={
                                'user_id': np.int32,
-                               'item_id': np.int32,
+                               'anime_id': np.int32,
                                'rating': np.float32,
                                
                            })
 
   np_users = ratings_df.user_id.as_matrix()
-  np_items = ratings_df.item_id.as_matrix()
+  np_items = ratings_df.anime_id.as_matrix()
   unique_users = np.unique(np_users)
   unique_items = np.unique(np_items)
 
@@ -147,7 +147,7 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
     ratings[:, 1] = i_r
     ratings[:, 2] = np_ratings
   else:
-    ratings = ratings_df.as_matrix(['user_id', 'item_id', 'rating'])
+    ratings = ratings_df.as_matrix(['user_id', 'anime_id', 'rating'])
     # deal with 1-based user indices
     ratings[:, 0] -= 1
     ratings[:, 1] -= 1

@@ -78,7 +78,7 @@ if [[ ${TRAIN_JOB} == "local" ]]; then
     -- \
     --job-dir jobs/${JOB_NAME} \
     ${ARGS}
-
+  
 elif [[ ${TRAIN_JOB} == "train" ]]; then
 
   ARGS="--gcs-bucket $BUCKET --train-file ${DATA_FILE} --verbose-logging $@"
