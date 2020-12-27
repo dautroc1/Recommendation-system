@@ -108,13 +108,8 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
   ratings_df = pd.read_csv(input_file,
                            sep=delimiter,
                            names=headers,
-                           header=header_row,
-                           dtype={
-                               'user_id': np.int32,
-                               'anime_id': np.int32,
-                               'rating': np.int32,
-                               
-                           })
+                           header=header_row
+                           )
 
   np_users = ratings_df.user_id.as_matrix()
   np_items = ratings_df.anime_id.as_matrix()
