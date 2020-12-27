@@ -112,7 +112,7 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
                            dtype={
                                'user_id': np.int32,
                                'anime_id': np.int32,
-                               'rating': np.float32,
+                               'rating': np.int32,
                                
                            })
 
