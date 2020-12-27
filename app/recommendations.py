@@ -79,7 +79,7 @@ class Recommendations(object):
     # load user_item history into pandas dataframe
     views_df = pd.read_csv(os.path.join(local_model_path,
                                         USER_ITEM_DATA_FILE), sep=',', header=0)
-    self.user_items = views_df.groupby('clientId')
+    self.user_items = views_df.groupby('user_id')
 
     logging.info('Finished loading model.')
 
