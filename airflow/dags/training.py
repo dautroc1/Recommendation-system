@@ -116,7 +116,7 @@ output_dir = BUCKET
 training_args = ['--job-dir', job_dir,
                  '--train-file', training_file,
                  '--output-dir', output_dir,
-                 '--delimiter',
+                 
                  '--use-optimized']
 
 t3 = MLEngineTrainingOperator(
