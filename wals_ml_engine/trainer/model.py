@@ -37,7 +37,7 @@ DEFAULT_PARAMS = {
     'wt_type': 0,
     'feature_wt_factor': 130.0,
     'feature_wt_exp': 0.08,
-    'delimiter': '\t'
+    'delimiter': ','
 }
 
 # parameters optimized with hypertuning for the MovieLens data set
