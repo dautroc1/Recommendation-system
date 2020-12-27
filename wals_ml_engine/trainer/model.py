@@ -105,7 +105,7 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
   """
   headers = ['user_id', 'anime_id', 'rating']
   header_row = 0 if use_headers else None
-  ratings_df = pd.read_csv(input_file, sep=',', header=0)
+  ratings_df = pd.read_csv(input_file, sep=',', header=0, engine = 'python',lineterminator = '\n')
 
   np_users = ratings_df.user_id.as_matrix()
   np_items = ratings_df.anime_id.as_matrix()
