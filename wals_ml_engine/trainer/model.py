@@ -37,7 +37,7 @@ DEFAULT_PARAMS = {
     'wt_type': 0,
     'feature_wt_factor': 130.0,
     'feature_wt_exp': 0.08,
-    'delimiter': ','
+    'delimiter': '\t'
 }
 
 # parameters optimized with hypertuning for the MovieLens data set
@@ -106,10 +106,15 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
   headers = ['user_id', 'anime_id', 'rating']
   header_row = 0 if use_headers else None
   ratings_df = pd.read_csv(input_file,
-                           sep=delimiter,
+                           sep=",",
                            names=headers,
-                           header=header_row
-                           )
+                           header=header_row,
+                           dtype={
+                               'user_id': np.float32,
+                               'anime_id': np.float32,
+                               'rating': np.float32,
+                               
+                           })
 
   np_users = ratings_df.user_id.as_matrix()
   np_items = ratings_df.anime_id.as_matrix()
