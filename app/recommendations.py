@@ -102,7 +102,7 @@ class Recommendations(object):
 
     if user_idx:
       # get already viewed items from views dataframe
-      already_rated = self.user_items.get_group(user_id).contentId
+      already_rated = self.user_items.get_group(user_id).anime_id
       already_rated_idx = [np.searchsorted(self.item_map, i)
                            for i in already_rated]
 
