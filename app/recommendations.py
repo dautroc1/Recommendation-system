@@ -42,7 +42,7 @@ class Recommendations(object):
 
   def __init__(self, local_model_path=LOCAL_MODEL_PATH):
     _, project_id = google.auth.default()
-    self._bucket = 'reverse_recommendation'
+    self._bucket = 'gs://reverse_recommendation'
     self._load_model(local_model_path)
 
   def _load_model(self, local_model_path):
@@ -83,7 +83,7 @@ class Recommendations(object):
 
     logging.info('Finished loading model.')
 
-  def get_recommendations(self, user_id, num_recs):
+  def get_recommendations(self,user_id, num_recs):
     """Given a user id, return list of num_recs recommended item ids.
 
     Args:
@@ -96,28 +96,30 @@ class Recommendations(object):
       None: The user id was not found.
     """
     article_recommendations = None
-
+    user_id = user_id + 1
     # map user id into ratings matrix user index
     user_idx = np.searchsorted(self.user_map, user_id)
 
-    if user_idx:
-      # get already viewed items from views dataframe
-      already_rated = self.user_items.get_group(user_id).anime_id
-      already_rated_idx = [np.searchsorted(self.item_map, i)
-                           for i in already_rated]
+    if user_idx+1:
 
-      # generate list of recommended article indexes from model
-      recommendations = generate_recommendations(user_idx, already_rated_idx,
-                                                 self.user_factor,
-                                                 self.item_factor,
-                                                 num_recs)
+          # get already viewed items from views dataframe
+          try:
+              already_rated = self.user_items.get_group(user_id+ 1).anime_id
+          except KeyError:
+              already_rated = []
+          already_rated_idx = [np.searchsorted(self.item_map, i)
+                               for i in already_rated]
 
-      # map article indexes back to article ids
-      article_recommendations = [self.item_map[i] for i in recommendations]
+          # generate list of recommended article indexes from model
+          recommendations = generate_recommendations(user_idx, already_rated_idx,
+                                                     self.user_factor,
+                                                     self.item_factor,
+                                                     num_recs)
+
+          # map article indexes back to article ids
+          article_recommendations = [self.item_map[i] for i in recommendations]
 
     return article_recommendations
-
-
 def generate_recommendations(user_idx, user_rated, row_factor, col_factor, k):
   """Generate recommendations for a user.
 
