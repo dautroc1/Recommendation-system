@@ -21,8 +21,8 @@ runtime_config:
 
 resources:
   cpu: 2
-  memory_gb: 12
-  disk_size_gb: 100
+  memory_gb: 10
+  disk_size_gb: 15
 
 service:
   default
@@ -32,7 +32,7 @@ service:
 #  app_start_timeout_sec: 300
 
 manual_scaling:
-  instances: 2
+  instances: 1
 
 endpoints_api_service:
   # This is a template. Use the deploy_app.sh script to deploy this app.
