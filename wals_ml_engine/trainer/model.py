@@ -106,11 +106,11 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
   headers = ['user_id', 'anime_id', 'rating']
 
 
-  balances_df = pd.read_csv('data_recommendation_events.csv',
+  balances_df = pd.read_csv(input_file,
                             sep=',',
                             names=headers,
-                            header=0
-                            )
+                            header=0,
+                            usecols=headers)
 
   df_tokens = pd.DataFrame({'anime_id': balances_df.anime_id.unique()})
   df_sorted_tokens = df_tokens.sort_values('anime_id').reset_index()

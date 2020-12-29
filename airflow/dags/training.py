@@ -84,7 +84,9 @@ dag.doc_md = __doc__
 
 bql='''
 select *
-from bqtest.rating
+from bqtest.rating b
+order by b.time
+
 '''
 
 
