@@ -96,7 +96,7 @@ class Recommendations(object):
       None: The user id was not found.
     """
     article_recommendations = None
-    user_id = user_id + 1
+    user_id = user_id - 1
     # map user id into ratings matrix user index
     user_idx = np.searchsorted(self.user_map, user_id)
 
