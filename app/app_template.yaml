@@ -21,8 +21,8 @@ runtime_config:
 
 resources:
   cpu: 2
-  memory_gb: 20
-  disk_size_gb: 25
+  memory_gb: 13
+  disk_size_gb: 30
 
 service:
   default
