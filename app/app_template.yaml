@@ -21,7 +21,7 @@ runtime_config:
 
 resources:
   cpu: 2
-  memory_gb: 13
+  memory_gb: 16
   disk_size_gb: 30
 
 service:
