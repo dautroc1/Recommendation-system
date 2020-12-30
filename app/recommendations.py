@@ -42,7 +42,7 @@ class Recommendations(object):
 
   def __init__(self, local_model_path=LOCAL_MODEL_PATH):
     _, project_id = google.auth.default()
-    self._bucket = 'gs://reverse_recommendation'
+    self._bucket = 'reverse_recommendation'
     self._load_model(local_model_path)
 
   def _load_model(self, local_model_path):
