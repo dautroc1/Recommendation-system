@@ -21,7 +21,6 @@ import pandas as pd
 from scipy.sparse import coo_matrix
 import sh
 import tensorflow as tf
-
 import wals
 
 # ratio of train set size to test set size
@@ -142,7 +141,7 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
 
   # convert ratings list and user list to np array
   ratings = np.asarray(ratings)
-  users = np.asarray(users)
+  users = np.asarray(users,dtype=np.float16)
 
   train_sparse, test_sparse = _create_sparse_train_and_test(ratings,
                                                          user_index + 1,
