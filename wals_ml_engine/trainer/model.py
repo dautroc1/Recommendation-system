@@ -141,11 +141,13 @@ def _ratings_train_and_test(use_headers, delimiter, input_file):
 
   # convert ratings list and user list to np array
   ratings = np.asarray(ratings)
-  users = np.asarray(users,dtype=np.float16)
+  users = np.asarray(users,dtype=np.int32)
 
   train_sparse, test_sparse = _create_sparse_train_and_test(ratings,
                                                          user_index + 1,
                                                          df_tokens.size)
+  train_sparse = train_sparse.astype(np.float16)
+  test_sparse = train_sparse.astype(np.float16)
 
   return users, pds_tokens.as_matrix(), train_sparse, test_sparse
 
