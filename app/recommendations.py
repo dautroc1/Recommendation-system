@@ -69,10 +69,10 @@ class Recommendations(object):
     logging.info('Finished downloading blobs.')
 
     # load npy arrays for user/item factors and user/item maps
-    self.user_factor = np.load(os.path.join(local_model_path, ROW_MODEL_FILE) , allow_pickle=True)
-    self.item_factor = np.load(os.path.join(local_model_path, COL_MODEL_FILE), allow_pickle=True)
-    self.user_map = np.load(os.path.join(local_model_path, USER_MODEL_FILE), allow_pickle=True)
-    self.item_map = np.load(os.path.join(local_model_path, ITEM_MODEL_FILE), allow_pickle=True)
+    self.user_factor = np.load(os.path.join(local_model_path, ROW_MODEL_FILE) , allow_pickle=True,mmap_mode='r')
+    self.item_factor = np.load(os.path.join(local_model_path, COL_MODEL_FILE), allow_pickle=True,mmap_mode='r')
+    self.user_map = np.load(os.path.join(local_model_path, USER_MODEL_FILE), allow_pickle=True,mmap_mode='r')
+    self.item_map = np.load(os.path.join(local_model_path, ITEM_MODEL_FILE), allow_pickle=True,mmap_mode='r')
 
     logging.info('Finished loading arrays.')
 
