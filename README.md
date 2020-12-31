@@ -1,11 +1,8 @@
-# Recommendations on GCP with TensorFlow 1.x and WALS
+# Recommendations
 
-This project deploys a solution for a recommendation service on GCP, using the WALS
-algorithm in the contrib.factorization module of TensorFlow 1.x.  Components include:
-
-- Recommendation model code, and scripts to train and tune the model on ML Engine
-- A REST endpoint using [Google Cloud Endpoints](https://cloud.google.com/endpoints/) for serving recommendations
-- An Airflow server managed by Cloud Composer (or alternatively, running on GKE) for running scheduled model training
+An end-to-end anime recommendation system in Google Cloud Platform. It will automatically retrain new data, redeploy follow schedule by using Google Cloud Composer. The data set contains information on user preference data from 73,516 users on 12,294 anime. 
+[Demo recommendation system](https://dautroc.shinyapps.io/recommendation/)
+[Anime dataset](https://www.kaggle.com/CooperUnion/anime-recommendations-database)
 
 
 ## Before you begin
@@ -24,126 +21,134 @@ algorithm in the contrib.factorization module of TensorFlow 1.x.  Components inc
   * Cloud SQL API    (if using Airflow on GKE)
   * Cloud Composer API (if using Cloud Composer for Airflow)
 
+## Data
+
+![plot](./Recommendation-system/image/rating1.png)
+-1 rating don't have many value so i remove it and create the new dataset.
+
+
+## Model
+Model code is contained in the wals_ml_engine directory.
+wals.py— creates the WALS model; executes the WALS algorithm; calculates the root-mean-square error (RMSE) for a set of row/column factors and a ratings matrix.
+model.py — loads the dataset; creates two sparse matrices from the data, one for training and one for testing; executes WALS on the training sparse matrix of ratings.
+
+# Preprocess data
+
+The item mapping is accomplished using the following [numpy](http://www.numpy.org/) code. The code creates an array of size [0..max_item_id] to perform the mapping, so if the maximum item ID is very large, this method might use too much memory.
+
+
+np_items = ratings_df.item_id.as_matrix()
+unique_items = np.unique(np_items)
+n_items = unique_items.shape[0]
+max_item = unique_items[-1]
+
+map unique items down to an array 0..n_items-1
+z = np.zeros(max_item+1, dtype=int)
+z[unique_items] = np.arange(n_items)
+i_r = z[np_items]
+The code for mapping users is essentially the same as the code for items.
+
+The model code randomly selects a test set of ratings. By default, 10% of the ratings are chosen for the test set. These ratings are removed from the training set and will be used to evaluate the predictive accuracy of the user and item factors.
+
+
+test_set_size = len(ratings) / TEST_SET_RATIO
+test_set_idx = np.random.choice(xrange(len(ratings)),
+                                size=test_set_size, replace=False)
+test_set_idx = sorted(test_set_idx)
+
+ts_ratings = ratings[test_set_idx]
+tr_ratings = np.delete(ratings, test_set_idx, axis=0)
+Finally, the code creates a scipy sparse matrix in coordinate form (coo_matrix) that includes the user and item indexes and ratings. The coo_matrix object acts as a wrapper for a sparse matrix. It also performs validation of the user and ratings indexes, checking for errors in preprocessing.
+
+tr_sparse = coo_matrix((r_tr, (u_tr, i_tr)), shape=(n_users, n_items))
+
+# WAL Algorithm
+After the data is preprocessed, the code passes the sparse training matrix into the TensorFlow WALS model to be factorized into row factor X and column factor Y.
+
+The TensorFlow code that executes the model is actually simple, because it relies on the WALSModel class included in the contrib.factorization_ops module of TensorFlow.
+
+A SparseTensor object is initialized with user IDs and items IDs as indices, and with the ratings as values. From wals.py:
+
+
+input_tensor = tf.SparseTensor(indices=zip(data.row, data.col),
+                                values=(data.data).astype(np.float32),
+                                dense_shape=data.shape)
+The data variable is the coo_matrix object of training ratings created in the preprocessing step.
+
+The model is instantiated:
+
+
+model = factorization_ops.WALSModel(num_rows, num_cols, dim,
+                                    unobserved_weight=unobs,
+                                    regularization=reg,
+                                    row_weights=row_wts,
+                                    col_weights=col_wts)
+The row factors and column factor tensors are created automatically by the WALSModel class, and are retrieved so they can be evaluated after factoring the matrix:
+
+
+# retrieve the row and column factors
+row_factor = model.row_factors[0]
+col_factor = model.col_factors[0]
+The training process executes the following loop within a TensorFlow session using the simple_train method in wals.py:
+
+
+row_update_op = model.update_row_factors(sp_input=input_tensor)[1]
+col_update_op = model.update_col_factors(sp_input=input_tensor)[1]
+
+sess.run(model.initialize_op)
+sess.run(model.worker_init)
+for _ in xrange(num_iterations):
+    sess.run(model.row_update_prep_gramian_op)
+    sess.run(model.initialize_row_update_op)
+    sess.run(row_update_op)
+    sess.run(model.col_update_prep_gramian_op)
+    sess.run(model.initialize_col_update_op)
+    sess.run(col_update_op)
+After num_iterations iterations have been executed, the row and column factor tensors are evaluated in the session to produce numpy arrays for each factor:
+
+
+# evaluate output factor matrices
+output_row = row_factor.eval(session=session)
+output_col = col_factor.eval(session=session)
+These factor arrays are used to calculate the RMSE on the test set of ratings. The two arrays are also saved in the output directory in numpy format.
+
+
 
 ## Installation
 
-### Option 1: Use Google Cloud Shell
-
-1. Open the [Google Cloud Platform
-   Console](https://console.cloud.google.com/?_ga=1.38191587.1500870598.1489443487).
-
-2. Click the Cloud Shell icon at the top of the screen.
-![Cloud Shell](https://cloud.google.com/shell/docs/images/shell_icon.png)
-
-### Option 2: Run Locally in Linux or Mac OS X
-
-*These scripts will not work in Windows. If you have a Windows machine, we
-recommend you use Google Cloud Shell.*
-
-1.  Download and install the [Google Cloud
-    SDK](https://cloud.google.com/sdk/docs/), which includes the
-    [gcloud](https://cloud.google.com/sdk/gcloud/) command-line tool.
-
-2.  Initialize the Cloud SDK.
-
-        gcloud init
-
-3.  Set your default project (replace YOUR-PROJECT-ID with the name of your
-    project).
-
-        gcloud config set project YOUR-PROJECT-ID
+### Install code
+In the new terminal window, update your instance's software respositories.
 
 
-### Install Miniconda 2
-
-This project assumes Python 2.
-
-* Install miniconda 2:
-
-https://docs.conda.io/en/latest/miniconda.html#installing
+sudo apt-get update
+Install git, bzip2, and unzip.
 
 
-* Create environment and install packages:
-
-Install packages in conda.txt:
-
-    cd tensorflow-recommendation-wals
-    conda create -y -n recserve
-    source activate recserve
-    conda install -y -n recserve --file conda.txt
-
-* Install TensorFlow version 1.x.  This code should work with any version of 1.x.  We are using the latest as of June 2020.
+sudo apt-get install -y git bzip2 unzip
+Clone the sample code repository:
 
 
-CPU:
+git clone https://github.com/dautroc1/Recommendation-system
+Install miniconda. The sample code requires Python 2.7.
 
-    pip install tensorflow==1.15
 
-Or GPU, if one is available in your environment:
+wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
+bash Miniconda2-latest-Linux-x86_64.sh
+export PATH="/home/$USER/miniconda2/bin:$PATH"
+Install the Python packages and TensorFlow. This tutorial will run on any 1.x version of TensorFlow.
 
-    pip install tensorflow-gpu==1.15
 
-Install other requirements not available from conda:
+cd tensorflow-recommendation-wals
+conda create -y -n tfrec
+conda install -y -n tfrec --file conda.txt
+source activate tfrec
+pip install -r requirements.txt
+pip install tensorflow==1.15
 
-    pip install -r requirements.txt
 
 ### Upload sample data to BigQuery
 
-This tutorial comes with a sample Google Analytics data set, containing page tracking events from the Austrian news site Kurier.at.  The schema file '''ga_sessions_sample_schema.json''' is located in the folder data in the tutorial code, and the data file '''ga_sessions_sample.json.gz''' is located in a public Cloud Storage bucket associated with this tutorial.  To upload this data set to BigQuery:
-
-1. Make a GCS bucket with the name recserve_[YOUR-PROJECT-ID]:
-
-	   export BUCKET=gs://recserve_$(gcloud config get-value project 2> /dev/null)
-	   gsutil mb ${BUCKET}
-
-2. Copy the data file ga_sessions_sample.json.gz to the bucket:
-
-	   gsutil cp gs://solutions-public-assets/recommendation-tensorflow/data/ga_sessions_sample.json.gz ${BUCKET}/data/ga_sessions_sample.json.gz
-
-3. (Option 1) Go to the BigQuery web UI. Create a new dataset named "GA360_test". In the navigation panel, hover on the dataset, click the down arrow icon, and click Create new table. On the Create Table page, in the Source Data section:
-      - For Location, select Google Cloud Storage, and enter the file path  [your_bucket]/data/ga_sessions_sample.json.gz (without the gs:// prefix).
-      - For File format, select JSON.
-      - On the Create Table page, in the Destination Table section, for Table name, choose the dataset, and in the table name field, enter the name of the table as 'ga_sessions_sample'.
-      - Verify that Table type is set to Native table.
-      - In the Schema section, enter the schema definition.
-      - Open the file data/ga_sessions_sample_schema.json in a text editor, select all, and copy the complete text of the file to the clipboard. Click Edit as text and paste the table schema into the text field in the web UI.
-      - Click Create Table.
-
-4. (Option 2) Using the command line:
-
-	   export PROJECT=$(gcloud config get-value project 2> /dev/null)
-
-	   bq --project_id=${PROJECT} mk GA360_test
-
-	   bq load --source_format=NEWLINE_DELIMITED_JSON \
-        GA360_test.ga_sessions_sample \
-        ${BUCKET}/data/ga_sessions_sample.json.gz \
-        data/ga_sessions_sample_schema.json
-
-
-### Install WALS model training package and model data
-
-1. Create a distributable package. Copy the package up to the code folder in the bucket you created previously.
-
-	   pushd wals_ml_engine
-	   python setup.py sdist
-	   gsutil cp dist/wals_ml_engine-0.1.tar.gz ${BUCKET}/code/
-
-2. Run the wals model on the sample data set:
-
-	   ./mltrain.sh local ../data recommendation_events.csv --data-type web_views --use-optimized
-
-This will take a couple minutes, and create a job directory under wals_ml_engine/jobs like "wals_ml_local_20180102_012345/model", containing the model files saved as numpy arrays.
-
-3. Copy the model files from this directory to the model folder in the project bucket:
-
-	   export JOB_MODEL=$(find jobs -name "model" | tail -1)
-	   gsutil cp ${JOB_MODEL}/* ${BUCKET}/model/
-
-4. Copy the sample data file up to the project bucket:
-
-	   gsutil cp ../data/recommendation_events.csv ${BUCKET}/data/
-	   popd
+You can use the BigQuery API to upload your data to BigQuery.
 
 ### Install the recserve endpoint
 
@@ -265,15 +270,6 @@ This will take a few minutes to complete.
 
 
 
-## Usage
-
-### rec_serve endpoint service
-
-    cd scripts
-    ./query_api.sh          # Query the API.
-    ./generate_traffic.sh   # Send traffic to the API.
-
-
 ### Airflow
 
 The Airflow web console can be used to update the schedule for the DAG, inspect logs, manually
@@ -309,3 +305,8 @@ e.g.
 The Airflow service can also be accessed from the airflow-webserver pod in the GKE cluster.
 Open your project console, navigate to the "Discovery and load balancing" page in GKE, and
 click on the endpoint link for the airflow-webserver to access the Airflow admin app.
+
+
+### Shiny app
+
+I create a simple Shiny app to test. The code is in Shiny directory.
