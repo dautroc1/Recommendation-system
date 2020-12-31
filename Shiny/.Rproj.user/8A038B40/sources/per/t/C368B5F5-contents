@@ -1,0 +1,23 @@
+shinyUI(fluidPage(
+    
+    # Application title
+    titlePanel("Anime recommendation"),
+    
+    # Sidebar with a slider input for number of bins
+    sidebarLayout(
+        sidebarPanel(
+            h2("Instruction"),
+            h5("1. Input user id to the box"),
+            h5("2. The recommendation will display below.")
+            
+            
+        ),
+        # Show a plot of the generated distribution
+        mainPanel(
+            tabsetPanel(
+                tabPanel("predict",
+                         textInput("textinput","Input value"),
+                         textOutput("text")))
+        )
+    )
+))

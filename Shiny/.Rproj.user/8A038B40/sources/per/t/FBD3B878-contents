@@ -1,0 +1,33 @@
+
+
+library(shiny)
+library(dplyr)
+library(markovchain)
+library(tidyr)
+library(stringr)
+library(curl)
+library(httr)
+
+
+
+shinyServer(function(input, output) {
+    
+    
+    
+    
+    
+    output$text <- renderText({
+        temp <- paste("https://recommendation-299509.appspot.com/recommendation?userId=",as.character(input$textinput),sep = "")
+        temp1 <- paste(temp,"&numRecs=5",sep = "")
+        result <- curl(temp1,"r")
+        while(length(x <- readLines(result, n = 5))){
+            print(x)
+            return x
+        }
+        
+        
+        
+    })
+    
+    
+})

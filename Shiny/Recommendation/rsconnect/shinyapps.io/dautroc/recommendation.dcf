@@ -1,0 +1,10 @@
+name: recommendation
+title:
+username:
+account: dautroc
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3436888
+bundleId: 4044915
+url: https://dautroc.shinyapps.io/recommendation/
+when: 1609405731.83099

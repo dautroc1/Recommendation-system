@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1609216378504.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "729637722",
+    "id" : "C368B5F5",
+    "lastKnownWriteTime" : 1609229445,
+    "last_content_update" : 1609229446000,
+    "path" : "D:/cntt/R/project/4/Shiny/Recommendation/ui.R",
+    "project_path" : "Recommendation/ui.R",
+    "properties" : {
+        "cursorPosition" : "22,2",
+        "scrollLine" : "3"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
