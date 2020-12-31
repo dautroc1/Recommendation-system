@@ -104,7 +104,7 @@ class Recommendations(object):
 
           # get already viewed items from views dataframe
           try:
-              already_rated = self.user_items[user_items.user_id == user_id + 1].anime_id
+              already_rated = self.user_items[self.user_items.user_id == user_id + 1].anime_id
           except KeyError:
               already_rated = []
           already_rated_idx = [np.searchsorted(self.item_map, i)
