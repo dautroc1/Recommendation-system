@@ -23,7 +23,7 @@ An end-to-end anime recommendation system in Google Cloud Platform. It will auto
 
 ## Data
 
-![plot](Recommendation-system/blob/main/image/rating1.png)
+![plot](https://github.com/dautroc1/Recommendation-system/blob/main/image/rating1.png)
 -1 rating don't have many value so i remove it and create the new dataset.
 
 
