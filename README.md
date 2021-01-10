@@ -4,7 +4,7 @@ An end-to-end anime recommendation system in Google Cloud Platform. It will auto
 Due to lack of resources I temporary disable the demo. You can see how it work in this video below.  
 
 [Video](https://drive.google.com/file/d/1lbNKkcn5MhNxr756-crzNDQwTHRfaemf/view?usp=sharing)  
-[Demo recommendation system](https://dautroc.shinyapps.io/recommendation/)
+[Demo recommendation system](https://dautroc.shinyapps.io/recommendation/)  
 [Anime dataset](https://www.kaggle.com/CooperUnion/anime-recommendations-database)  
 
 
